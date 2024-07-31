@@ -5,6 +5,7 @@ exports.deactivate = deactivate;
 const vscode = require("vscode");
 const codeGathererTreeDataProvider_1 = require("./codeGathererTreeDataProvider");
 const fileGenerator_1 = require("./fileGenerator");
+const projectStructureGenerator_1 = require("./projectStructureGenerator");
 function activate(context) {
     console.log("Code Gatherer extension is now active!");
     const workspaceRoot = vscode.workspace.workspaceFolders &&
@@ -57,6 +58,27 @@ function activate(context) {
     context.subscriptions.push(disposable);
     disposable = vscode.commands.registerCommand("codeGatherer.toggleSelection", (item) => {
         treeDataProvider.toggleSelection(item);
+    });
+    context.subscriptions.push(disposable);
+    disposable = vscode.commands.registerCommand("codeGatherer.generateProjectStructure", async () => {
+        if (!workspaceRoot) {
+            vscode.window.showErrorMessage("No workspace folder open");
+            return;
+        }
+        try {
+            const filePath = await (0, projectStructureGenerator_1.generateProjectStructure)(workspaceRoot);
+            const document = await vscode.workspace.openTextDocument(filePath);
+            await vscode.window.showTextDocument(document);
+            vscode.window.showInformationMessage(`Project structure saved to ${filePath}`);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                vscode.window.showErrorMessage(`Error generating project structure: ${error.message}`);
+            }
+            else {
+                vscode.window.showErrorMessage("An unknown error occurred while generating project structure.");
+            }
+        }
     });
     context.subscriptions.push(disposable);
     treeView.onDidChangeSelection((event) => {

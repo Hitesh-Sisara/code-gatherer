@@ -2,7 +2,7 @@
   "name": "code-gatherer",
   "displayName": "Code Gatherer",
   "description": "Gather code from multiple files and folders into a single Markdown file for AI analysis",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.91.1"
   },
@@ -30,6 +30,10 @@
       {
         "command": "codeGatherer.toggleSelection",
         "title": "Toggle Selection"
+      },
+      {
+        "command": "codeGatherer.generateProjectStructure",
+        "title": "Generate Project Structure"
       }
     ],
     "keybindings": [
@@ -63,6 +67,12 @@
           "command": "codeGatherer.generateFiles",
           "when": "view == codeGathererTree",
           "group": "navigation@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "codeGatherer.generateProjectStructure",
+          "group": "codeGatherer@1"
         }
       ]
     }

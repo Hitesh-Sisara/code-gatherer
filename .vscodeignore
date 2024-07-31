@@ -1,21 +1,51 @@
+# Ignore source files
+src/**
+
+# Ignore development config files
 .vscode/**
 .vscode-test/**
-src/**
 .gitignore
 .yarnrc
+tsconfig.json
 webpack.config.js
-**/tsconfig.json
 **/.eslintrc.json
+
+# Ignore map files and TypeScript files
 **/*.map
 **/*.ts
+!src/*.d.ts
 
+# Ignore unnecessary files
+.git
+.github
+.gitlab
+*.vsix
+bun.lockb
+
+# Ignore most of node_modules, but keep necessary type definitions
 node_modules/**
 !node_modules/@types/**
 
-# Ignore all JavaScript files in node_modules
-node_modules/**/*.js
-# But include JavaScript files directly in the root of node_modules (if any)
-!node_modules/*.js
+# Ignore test files
+test/**
 
-# Include only minified JavaScript files from specific libraries (example)
-!node_modules/some-important-library/dist/min/*.js
+# Keep only necessary resource files
+resources/**
+!resources/code-gatherer-icon.png
+!resources/code-gatherer.svg
+!resources/generate-dark.svg
+!resources/generate-light.svg
+
+# Keep necessary documentation
+!README.md
+!LICENSE.txt
+
+# Ignore any logs or temporary files
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Ignore any OS-specific files
+.DS_Store
+Thumbs.db

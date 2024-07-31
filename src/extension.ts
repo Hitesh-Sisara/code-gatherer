@@ -4,6 +4,7 @@ import {
   CodeGathererTreeItem,
 } from "./codeGathererTreeDataProvider";
 import { copyFirstFileToClipboard, generateFiles } from "./fileGenerator";
+import { generateProjectStructure } from "./projectStructureGenerator";
 
 export function activate(context: vscode.ExtensionContext) {
   console.log("Code Gatherer extension is now active!");
@@ -92,6 +93,37 @@ export function activate(context: vscode.ExtensionContext) {
     "codeGatherer.toggleSelection",
     (item: CodeGathererTreeItem) => {
       treeDataProvider.toggleSelection(item);
+    }
+  );
+
+  context.subscriptions.push(disposable);
+
+  disposable = vscode.commands.registerCommand(
+    "codeGatherer.generateProjectStructure",
+    async () => {
+      if (!workspaceRoot) {
+        vscode.window.showErrorMessage("No workspace folder open");
+        return;
+      }
+
+      try {
+        const filePath = await generateProjectStructure(workspaceRoot);
+        const document = await vscode.workspace.openTextDocument(filePath);
+        await vscode.window.showTextDocument(document);
+        vscode.window.showInformationMessage(
+          `Project structure saved to ${filePath}`
+        );
+      } catch (error) {
+        if (error instanceof Error) {
+          vscode.window.showErrorMessage(
+            `Error generating project structure: ${error.message}`
+          );
+        } else {
+          vscode.window.showErrorMessage(
+            "An unknown error occurred while generating project structure."
+          );
+        }
+      }
     }
   );
 
