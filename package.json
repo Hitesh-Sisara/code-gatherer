@@ -6,31 +6,75 @@
   "engines": {
     "vscode": "^1.91.1"
   },
+  "publisher": "@Hitesh_Sisara",
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:extension.codeGatherer"
-  ],
+  "activationEvents": [],
   "main": "./out/extension.js",
+  "icon": "resources/code-gatherer-icon.png",
   "contributes": {
     "commands": [
       {
-        "command": "extension.codeGatherer",
-        "title": "Gather Code for AI"
+        "command": "codeGatherer.togglePanel",
+        "title": "Toggle Code Gatherer Panel"
+      },
+      {
+        "command": "codeGatherer.generateFiles",
+        "title": "Generate Files for AI Analysis",
+        "icon": {
+          "light": "resources/generate-light.svg",
+          "dark": "resources/generate-dark.svg"
+        }
+      },
+      {
+        "command": "codeGatherer.toggleSelection",
+        "title": "Toggle Selection"
       }
-    ]
+    ],
+    "keybindings": [
+      {
+        "command": "codeGatherer.togglePanel",
+        "key": "ctrl+shift+g",
+        "mac": "cmd+shift+g"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "code-gatherer-explorer",
+          "title": "Code Gatherer",
+          "icon": "resources/code-gatherer.svg"
+        }
+      ]
+    },
+    "views": {
+      "code-gatherer-explorer": [
+        {
+          "id": "codeGathererTree",
+          "name": "File Selection",
+          "contextualTitle": "Code Gatherer"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "codeGatherer.generateFiles",
+          "when": "view == codeGathererTree",
+          "group": "navigation@2"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "bun run compile",
-    "compile": "bun build ./src/extension.ts --outdir=out --target=node --external vscode",
+    "compile": "tsc -p ./",
     "watch": "bun build ./src/extension.ts --outdir=out --target=node --external vscode --watch",
     "pretest": "bun run compile && bun run lint",
     "lint": "eslint src --ext ts",
     "test": "bun test",
-    "package": "vsce package",
-    "yo": "yo",
-    "generate-code": "yo code"
+    "package": "vsce package"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
@@ -48,9 +92,14 @@
     "vscode-test": "^1.5.2",
     "yo": "^5.0.0"
   },
+  "dependencies": {},
   "author": {
     "name": "Hitesh Sisara",
     "email": "hitesh@sisara.in"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hitesh-Sisara/code-gatherer.git"
+  }
 }

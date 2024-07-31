@@ -6,12 +6,7 @@
     "lib": ["ES2020"],
     "sourceMap": true,
     "rootDir": "src",
-    "strict": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUnusedParameters": true,
-    "noUnusedLocals": true,
-    "esModuleInterop": true
+    "strict": true
   },
   "exclude": ["node_modules", ".vscode-test"]
 }

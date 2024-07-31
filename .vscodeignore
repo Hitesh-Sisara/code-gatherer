@@ -3,8 +3,19 @@
 src/**
 .gitignore
 .yarnrc
-vsc-extension-quickstart.md
+webpack.config.js
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map
 **/*.ts
+
+node_modules/**
+!node_modules/@types/**
+
+# Ignore all JavaScript files in node_modules
+node_modules/**/*.js
+# But include JavaScript files directly in the root of node_modules (if any)
+!node_modules/*.js
+
+# Include only minified JavaScript files from specific libraries (example)
+!node_modules/some-important-library/dist/min/*.js
