@@ -1,0 +1,56 @@
+{
+  "name": "code-gatherer",
+  "displayName": "Code Gatherer",
+  "description": "Gather code from multiple files and folders into a single Markdown file for AI analysis",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.91.1"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.codeGatherer"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.codeGatherer",
+        "title": "Gather Code for AI"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "bun run compile",
+    "compile": "bun build ./src/extension.ts --outdir=out --target=node --external vscode",
+    "watch": "bun build ./src/extension.ts --outdir=out --target=node --external vscode --watch",
+    "pretest": "bun run compile && bun run lint",
+    "lint": "eslint src --ext ts",
+    "test": "bun test",
+    "package": "vsce package",
+    "yo": "yo",
+    "generate-code": "yo code"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.91.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^9.8.0",
+    "generator-code": "^1.11.1",
+    "glob": "^11.0.0",
+    "mocha": "^10.7.0",
+    "typescript": "^5.5.4",
+    "vsce": "^2.15.0",
+    "vscode-test": "^1.5.2",
+    "yo": "^5.0.0"
+  },
+  "author": {
+    "name": "Hitesh Sisara",
+    "email": "hitesh@sisara.in"
+  },
+  "license": "MIT"
+}
