@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
+import { SELECTED_ICON } from "./constants";
 
 export class CodeGathererTreeItem extends vscode.TreeItem {
   constructor(
@@ -20,10 +21,7 @@ export class CodeGathererTreeItem extends vscode.TreeItem {
   updateDescription() {
     if (this.isSelected) {
       this.description = "Selected";
-      this.iconPath = new vscode.ThemeIcon(
-        "check",
-        new vscode.ThemeColor("charts.green")
-      );
+      this.iconPath = SELECTED_ICON;
     } else {
       this.description = "";
       this.iconPath = this.isFolder
@@ -57,11 +55,8 @@ export class CodeGathererTreeDataProvider
       return Promise.resolve([]);
     }
 
-    if (element) {
-      return this.getFileItems(element.fullPath, element);
-    } else {
-      return this.getFileItems(this.workspaceRoot);
-    }
+    const folderPath = element ? element.fullPath : this.workspaceRoot;
+    return this.getFileItems(folderPath, element);
   }
 
   private async getFileItems(
@@ -70,7 +65,7 @@ export class CodeGathererTreeDataProvider
   ): Promise<CodeGathererTreeItem[]> {
     const items = await fs.promises.readdir(folderPath);
     return items
-      .filter((item) => item !== "ai" && item !== "CodeGatherer") // Filter out "ai" and "CodeGatherer" directories
+      .filter((item) => item !== "ai" && item !== "CodeGatherer")
       .map((item) => {
         const fullPath = path.join(folderPath, item);
         const stat = fs.statSync(fullPath);

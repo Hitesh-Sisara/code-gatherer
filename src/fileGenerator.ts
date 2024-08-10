@@ -1,21 +1,18 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-
-const MAX_CHARACTERS = 800000; // Approximately 800,000 characters
+import {
+  BINARY_FILE_EXTENSIONS,
+  LANGUAGE_MAP,
+  MAX_CHARACTERS,
+  SYSTEM_GENERATED_FILES,
+} from "./constants";
 
 export async function generateFiles(
   selectedItems: string[],
   progress: vscode.Progress<{ message?: string; increment?: number }>
 ): Promise<string[]> {
-  const outputFolder = path.join(
-    vscode.workspace.workspaceFolders![0].uri.fsPath,
-    "CodeGatherer"
-  );
-  if (!fs.existsSync(outputFolder)) {
-    fs.mkdirSync(outputFolder);
-  }
-
+  const outputFolder = getOutputFolder();
   const timestamp = new Date().toISOString().replace(/[:]/g, "-").split(".")[0];
   let fileIndex = 0;
   let currentFileContent = "";
@@ -36,9 +33,7 @@ export async function generateFiles(
     }
   };
 
-  currentFileContent += `# Here is code from the our project for analysis and improvement. Please review and study this existing code and provide production-ready code with file names and file paths. Make sure to provide a separate artifact for each file.
-
-`;
+  currentFileContent = getInitialContent();
 
   const totalItems = selectedItems.length;
   let processedItems = 0;
@@ -61,6 +56,12 @@ export async function generateFiles(
     const files = await fs.promises.readdir(dirPath);
     for (const file of files) {
       const fullPath = path.join(dirPath, file);
+      if (
+        SYSTEM_GENERATED_FILES.includes(file) ||
+        SYSTEM_GENERATED_FILES.includes(path.basename(dirPath))
+      ) {
+        continue; // Skip system-generated files and directories
+      }
       if (fs.statSync(fullPath).isDirectory()) {
         await processDirectory(fullPath);
       } else {
@@ -74,11 +75,26 @@ export async function generateFiles(
       vscode.workspace.workspaceFolders![0].uri.fsPath,
       filePath
     );
-    const fileContent = await fs.promises.readFile(filePath, "utf8");
     const fileExtension = path.extname(filePath).toLowerCase();
-    const language = getLanguageFromExtension(fileExtension);
+    const fileName = path.basename(filePath);
 
-    const content = `\n## File: ${relativePath}\n\nHere is the existing code for ${relativePath}:\n\n\`\`\`${language}\n${fileContent}\n\`\`\`\n`;
+    if (SYSTEM_GENERATED_FILES.includes(fileName)) {
+      return; // Skip system-generated files
+    }
+
+    let content = `\n## File: ${relativePath}\n\n`;
+
+    if (BINARY_FILE_EXTENSIONS.includes(fileExtension)) {
+      content += `Binary file: ${fileName} (${fileExtension.slice(1)} file)\n`;
+    } else {
+      try {
+        const fileContent = await fs.promises.readFile(filePath, "utf8");
+        const language = getLanguageFromExtension(fileExtension);
+        content += `Here is the existing code for ${relativePath}:\n\n\`\`\`${language}\n${fileContent}\n\`\`\`\n`;
+      } catch (error) {
+        content += `Unable to read file content: ${fileName}\n`;
+      }
+    }
 
     if (currentCharCount + content.length > MAX_CHARACTERS) {
       writeFile();
@@ -99,145 +115,25 @@ export async function copyFirstFileToClipboard(
   }
 }
 
+function getOutputFolder(): string {
+  const outputFolder = path.join(
+    vscode.workspace.workspaceFolders![0].uri.fsPath,
+    "CodeGatherer"
+  );
+  if (!fs.existsSync(outputFolder)) {
+    fs.mkdirSync(outputFolder);
+  }
+  return outputFolder;
+}
+
+function getInitialContent(): string {
+  return `# Code from our project for analysis and improvement
+
+Please review and study this existing code and provide production-ready code with file names and file paths. Make sure to provide a separate artifact for each file.
+
+`;
+}
+
 function getLanguageFromExtension(extension: string): string {
-  const languageMap: { [key: string]: string } = {
-    // Web development
-    ".html": "html",
-    ".htm": "html",
-    ".css": "css",
-    ".scss": "scss",
-    ".sass": "sass",
-    ".less": "less",
-    ".js": "javascript",
-    ".jsx": "jsx",
-    ".ts": "typescript",
-    ".tsx": "tsx",
-    ".json": "json",
-    ".xml": "xml",
-    ".svg": "svg",
-
-    // Server-side languages
-    ".php": "php",
-    ".py": "python",
-    ".rb": "ruby",
-    ".java": "java",
-    ".class": "java",
-    ".cs": "csharp",
-    ".go": "go",
-    ".rs": "rust",
-    ".scala": "scala",
-    ".kt": "kotlin",
-    ".kts": "kotlin",
-    ".groovy": "groovy",
-    ".gradle": "gradle",
-
-    // Shell and scripting
-    ".sh": "bash",
-    ".bash": "bash",
-    ".zsh": "zsh",
-    ".fish": "fish",
-    ".ps1": "powershell",
-    ".bat": "batch",
-    ".cmd": "batch",
-    ".vbs": "vbscript",
-    ".vb": "vb",
-    ".pl": "perl",
-    ".pm": "perl",
-    ".t": "perl",
-    ".lua": "lua",
-
-    // Markup and config
-    ".md": "markdown",
-    ".markdown": "markdown",
-    ".yaml": "yaml",
-    ".yml": "yaml",
-    ".toml": "toml",
-    ".ini": "ini",
-    ".cfg": "ini",
-    ".conf": "conf",
-    ".properties": "properties",
-
-    // C-family languages
-    ".c": "c",
-    ".h": "c",
-    ".cpp": "cpp",
-    ".hpp": "cpp",
-    ".cc": "cpp",
-    ".cxx": "cpp",
-    ".m": "objectivec",
-    ".mm": "objectivec",
-
-    // Database
-    ".sql": "sql",
-    ".mysql": "sql",
-    ".pgsql": "sql",
-    ".plsql": "plsql",
-
-    // Other programming languages
-    ".hs": "haskell",
-    ".lhs": "haskell",
-    ".elm": "elm",
-    ".clj": "clojure",
-    ".cljs": "clojure",
-    ".cljc": "clojure",
-    ".erl": "erlang",
-    ".ex": "elixir",
-    ".exs": "elixir",
-    ".eex": "elixir",
-    ".r": "r",
-    ".rmd": "rmd",
-    ".jl": "julia",
-    ".dart": "dart",
-    ".f": "fortran",
-    ".f90": "fortran",
-    ".fs": "fsharp",
-    ".fsx": "fsharp",
-    ".pas": "pascal",
-    ".d": "d",
-    ".v": "v",
-    ".nim": "nim",
-    ".cr": "crystal",
-
-    // Web assembly
-    ".wat": "wat",
-    ".wasm": "wasm",
-
-    // Game development
-    ".gd": "gdscript",
-    ".as": "actionscript",
-
-    // DevOps and infrastructure
-    ".tf": "terraform",
-    ".tfvars": "terraform",
-    ".hcl": "hcl",
-    ".dockerfile": "dockerfile",
-    ".dockerignore": "dockerignore",
-    ".vagrantfile": "ruby",
-    ".jenkinsfile": "groovy",
-
-    // Data serialization
-    ".proto": "protobuf",
-    ".thrift": "thrift",
-
-    // Template engines
-    ".ejs": "ejs",
-    ".pug": "pug",
-    ".hbs": "handlebars",
-    ".mustache": "mustache",
-    ".twig": "twig",
-    ".liquid": "liquid",
-
-    // Others
-    ".graphql": "graphql",
-    ".dot": "dot",
-    ".tex": "latex",
-    ".rst": "restructuredtext",
-    ".asciidoc": "asciidoc",
-    ".adoc": "asciidoc",
-
-    // Mobile development (without duplicates)
-    ".swift": "swift",
-  };
-
-  return languageMap[extension.toLowerCase()] || "plaintext";
+  return LANGUAGE_MAP[extension.toLowerCase()] || "plaintext";
 }

@@ -1,29 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-
-const DEFAULT_IGNORE_PATTERNS = [
-  "node_modules",
-  ".git",
-  ".next",
-  "build",
-  "dist",
-  "out",
-  "target",
-  "vendor",
-  "__pycache__",
-  ".vscode",
-  ".idea",
-  "*.pyc",
-  "*.pyo",
-  "*.pyd",
-  "*.class",
-  "*.log",
-  "*.sqlite",
-  "*.swp",
-  ".DS_Store",
-  "Thumbs.db",
-];
+import { BINARY_FILE_EXTENSIONS, DEFAULT_IGNORE_PATTERNS } from "./constants";
 
 export async function generateProjectStructure(
   rootPath: string
@@ -78,7 +56,12 @@ async function generateStructure(
         ignorePatterns
       );
     } else {
-      structure += `${indent}├── ${item}\n`;
+      const fileExtension = path.extname(item).toLowerCase();
+      if (BINARY_FILE_EXTENSIONS.includes(fileExtension)) {
+        structure += `${indent}├── ${item} (${fileExtension.slice(1)} file)\n`;
+      } else {
+        structure += `${indent}├── ${item}\n`;
+      }
     }
   }
 

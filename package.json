@@ -2,11 +2,11 @@
   "name": "code-gatherer",
   "displayName": "Code Gatherer",
   "description": "Gather code from multiple files and folders into a single Markdown file for AI analysis",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.91.1"
   },
-  "publisher": "@Hitesh_Sisara",
+  "publisher": "HIteshSisara",
   "categories": [
     "Other"
   ],
